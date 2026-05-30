@@ -12,7 +12,7 @@ export const pick = (obj, ...fields) => {
 export const pick2 = (obj, ...fields) => {
     const result = {};
     for (const field of fields) {
-        if (field in obj) {
+        if (Object.hasOwn(obj, field)) {
             result[field] = obj[field];
         }
     }
