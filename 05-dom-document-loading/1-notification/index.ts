@@ -1,6 +1,6 @@
 import { createElement } from "../../shared/utils/create-element";
 
-interface Options { 
+interface Options {
   duration?: number;
   type?: NotificationType;
 }
@@ -15,7 +15,10 @@ export default class NotificationMessage {
   message: string;
   timerId: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(message: string, { duration = 2000, type = "success" }: Options = {}) {
+  constructor(
+    message: string,
+    { duration = 2000, type = "success" }: Options = {},
+  ) {
     this.duration = duration;
     this.type = type;
     this.message = message;
