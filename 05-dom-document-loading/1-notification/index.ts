@@ -9,7 +9,7 @@ type NotificationType = "success" | "error" | "warning";
 
 export default class NotificationMessage {
   static activeNotification: NotificationMessage | null = null;
-  element: HTMLDivElement | null;
+  element: HTMLElement | null;
   duration: number;
   type: NotificationType;
   message: string;
@@ -22,7 +22,7 @@ export default class NotificationMessage {
     this.duration = duration;
     this.type = type;
     this.message = message;
-    this.element = createElement(this.template()) as HTMLDivElement;
+    this.element = createElement(this.template());
   }
 
   show(target: HTMLElement = document.body) {

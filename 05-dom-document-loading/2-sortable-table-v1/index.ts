@@ -1,3 +1,6 @@
+import { createElement } from "../../shared/utils/create-element";
+import { required } from "../../shared/utils/required";
+
 type SortOrder = "asc" | "desc";
 
 type SortableTableData = Record<string, string | number>;
@@ -11,7 +14,7 @@ interface SortableTableHeader {
 }
 
 export default class SortableTable {
-  element: HTMLDivElement | null = null;
+  private _element: HTMLElement | null = null;
   headersConfig: SortableTableHeader[];
   data: SortableTableData[];
   constructor(
@@ -20,18 +23,30 @@ export default class SortableTable {
   ) {
     this.headersConfig = headersConfig;
     this.data = data;
-    this.element = this.render();
+    this._element = this.render();
   }
 
   render(): HTMLDivElement {
-    const wrapper = document.createElement("div");
-    wrapper.innerHTML = this.template();
-    return wrapper.firstElementChild as HTMLDivElement;
+    return createElement(this.template()) as HTMLDivElement;
+  }
+
+  get element(): HTMLElement{
+    return required(
+      this._element,
+      "Element has been destroyed or not rendered",
+    )
+  }
+
+  private sub<T extends Element = HTMLElement>(selector: string): T {
+    return required(
+      this.element?.querySelector<T>(selector),
+      `Element "${selector}" not found`,
+    );
   }
 
   template(): string {
     return `
-      <div class="sortable-table">
+      <div class="sortable-table">FF
         <div data-element="header" class="sortable-table__header sortable-table__row">
           ${this.headersConfig.map((item) => this.getHeaderCell(item)).join("")}
         </div>
@@ -44,8 +59,17 @@ export default class SortableTable {
 
   getHeaderCell({ id, title, sortable = false }: SortableTableHeader): string {
     return `
-      <div class="sortable-table__cell" data-id="${id}" data-sortable="${sortable}">
+      <div class="sortable-table__cell" data-id="${id}" data-sortable="${sortable}" data-order="asc">
         <span>${title}</span>
+        ${
+          sortable
+            ? `
+        <span data-element="arrow" class="sortable-table__sort-arrow">
+          <span class="sort-arrow"></span>
+        </span>
+        `
+            : ""
+        }
       </div>
     `;
   }
@@ -54,7 +78,7 @@ export default class SortableTable {
     return data
       .map(
         (item) => `
-      <a href="#" class="sortable-table__row">
+      <a href="/products/${item.id}" class="sortable-table__row">
         ${this.headersConfig
           .map(({ id, template }) => {
             const cellData = item[id];
@@ -87,10 +111,15 @@ export default class SortableTable {
       );
     });
 
-    const body = this.element!.querySelector(
-      '[data-element="body"]',
-    ) as HTMLDivElement;
+    const body = this.sub<HTMLDivElement>('[data-element="body"]');
     body.innerHTML = this.getTableRows(sortedData);
+
+    this.element
+      ?.querySelectorAll<HTMLDivElement>("[data-id]")
+      .forEach((cell) => cell.removeAttribute("data-order"));
+
+    const headerCell = this.sub<HTMLDivElement>(`[data-id="${field}"]`);
+    headerCell.dataset.order = order;
   }
 
   remove() {
@@ -101,6 +130,6 @@ export default class SortableTable {
 
   destroy() {
     this.remove();
-    this.element = null;
+    this._element = null;
   }
 }
