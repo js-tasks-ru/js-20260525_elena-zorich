@@ -59,7 +59,7 @@ export default class SortableTable {
 
   getHeaderCell({ id, title, sortable = false }: SortableTableHeader): string {
     return `
-      <div class="sortable-table__cell" data-id="${id}" data-sortable="${sortable}" data-order="asc">
+      <div class="sortable-table__cell" data-id="${id}" data-sortable="${sortable}">
         <span>${title}</span>
         ${
           sortable
@@ -123,9 +123,7 @@ export default class SortableTable {
   }
 
   remove() {
-    if (this.element) {
-      this.element.remove();
-    }
+    this._element?.remove();
   }
 
   destroy() {
