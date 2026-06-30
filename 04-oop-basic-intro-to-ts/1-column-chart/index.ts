@@ -10,6 +10,7 @@ interface Options {
 
 export default class ColumnChart {
   element: HTMLDivElement | null = null;
+  bodyElement: HTMLDivElement | null = null;
   chartHeight = 50;
   label: string;
   value: number | string;
@@ -27,11 +28,12 @@ export default class ColumnChart {
     this.link = link;
     this.data = data;
     this.element = createElement(this.template()) as HTMLDivElement;
+    this.bodyElement = this.element.querySelector('[data-element="body"]') as HTMLDivElement;
   }
 
   update(data: number[]) {
     if (!this.element) return;
-    this.element.querySelector('[data-element="body"]')!.innerHTML =
+    this.bodyElement!.innerHTML =
       this.getColumnBody(data);
   }
 
@@ -47,12 +49,15 @@ export default class ColumnChart {
   }
 
   getColumnBody(data: number[]): string {
-    const scale = this.chartHeight / Math.max(...data);
+    const maxValue = Math.max(...data);
+    if (maxValue === 0) return "";
+    const scale = this.chartHeight / maxValue;
     let chartData = "";
 
     data.forEach((item) => {
-      const percent = ((item / Math.max(...data)) * 100).toFixed(0);
-      const value = Math.floor(item * scale);
+      const clamped = Math.max(0, item);
+      const percent = ((clamped / maxValue) * 100).toFixed(0);
+      const value = Math.floor(clamped * scale);
       chartData += `<div style="--value: ${value}" data-tooltip="${percent}%"></div>`;
     });
     return chartData;
