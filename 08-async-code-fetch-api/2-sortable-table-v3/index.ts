@@ -35,7 +35,7 @@ export default class SortableTable {
   element: HTMLElement;
   headersConfig: SortableTableHeader[];
   data: SortableTableData[] = [];
-  url: string;
+  url: URL;
   sorted: SortableTableSort;
   isSortLocally: boolean;
   step: number;
@@ -99,7 +99,7 @@ export default class SortableTable {
     end = start + step,
   }: Options = {}) {
     this.headersConfig = headersConfig;
-    this.url = url;
+    this.url = new URL(url, BACKEND_URL);
     this.sorted = sorted;
     this.isSortLocally = isSortLocally;
     this.step = step;
@@ -109,7 +109,7 @@ export default class SortableTable {
     this.element = createElement(this.template());
 
     this.sub('[data-element="header"]').addEventListener('pointerdown', this.onHeaderClick);
-    window.addEventListener('scroll', this.onScroll);
+    document.addEventListener('scroll', this.onScroll);
 
     this.render();
   }
@@ -183,14 +183,13 @@ export default class SortableTable {
     start: number,
     end: number,
   ): Promise<SortableTableData[]> {
-    const url = new URL(this.url, BACKEND_URL);
 
-    url.searchParams.set('_sort', sort.id);
-    url.searchParams.set('_order', sort.order);
-    url.searchParams.set('_start', String(start));
-    url.searchParams.set('_end', String(end));
+    this.url.searchParams.set('_sort', sort.id);
+    this.url.searchParams.set('_order', sort.order);
+    this.url.searchParams.set('_start', String(start));
+    this.url.searchParams.set('_end', String(end));
 
-    return fetchJson<SortableTableData[]>(url.toString());
+    return fetchJson<SortableTableData[]>(this.url.toString());
   }
 
   async render(): Promise<void> {

@@ -103,6 +103,8 @@ body {
   border: 1px solid var(--blue);
   margin: 0;
   z-index: 10000;
+  transition: box-shadow 0.08s ease-out;
+  user-select: none;
 }
 
 .sortable-list__placeholder {
